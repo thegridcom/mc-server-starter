@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,8 @@
   <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -50,7 +52,7 @@
     body {
       font-family: var(--font-main);
       background-color: var(--bg-color);
-      background-image: 
+      background-image:
         radial-gradient(circle at 15% 20%, rgba(249, 115, 22, 0.12), transparent 45%),
         radial-gradient(circle at 85% 80%, rgba(56, 189, 248, 0.09), transparent 45%),
         linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
@@ -252,26 +254,65 @@
     }
 
     @keyframes pulseAnimation {
-      0% { transform: scale(1); opacity: 0.8; }
-      100% { transform: scale(2.2); opacity: 0; }
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+
+      100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
     }
 
     /* Status Colors */
-    .running .pulse-dot { background: #22c55e; }
-    .running .pulse-dot::after { background: #22c55e; }
-    .running .badge-text { color: #86efac; }
+    .running .pulse-dot {
+      background: #22c55e;
+    }
 
-    .starting .pulse-dot { background: #eab308; }
-    .starting .pulse-dot::after { background: #eab308; }
-    .starting .badge-text { color: #fde047; }
+    .running .pulse-dot::after {
+      background: #22c55e;
+    }
 
-    .stopping .pulse-dot { background: #f97316; }
-    .stopping .pulse-dot::after { background: #f97316; }
-    .stopping .badge-text { color: #fdba74; }
+    .running .badge-text {
+      color: #86efac;
+    }
 
-    .offline .pulse-dot { background: #ef4444; }
-    .offline .pulse-dot::after { background: #ef4444; }
-    .offline .badge-text { color: #fca5a5; }
+    .starting .pulse-dot {
+      background: #eab308;
+    }
+
+    .starting .pulse-dot::after {
+      background: #eab308;
+    }
+
+    .starting .badge-text {
+      color: #fde047;
+    }
+
+    .stopping .pulse-dot {
+      background: #f97316;
+    }
+
+    .stopping .pulse-dot::after {
+      background: #f97316;
+    }
+
+    .stopping .badge-text {
+      color: #fdba74;
+    }
+
+    .offline .pulse-dot {
+      background: #ef4444;
+    }
+
+    .offline .pulse-dot::after {
+      background: #ef4444;
+    }
+
+    .offline .badge-text {
+      color: #fca5a5;
+    }
 
     .badge-pill {
       font-size: 0.8rem;
@@ -500,11 +541,17 @@
     }
 
     @media (max-width: 480px) {
-      .card { padding: 1.75rem 1.25rem; }
-      .features-grid { grid-template-columns: 1fr; }
+      .card {
+        padding: 1.75rem 1.25rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Top Navbar -->
@@ -526,9 +573,10 @@
     <div class="icon-header">
       <i class="fa-solid fa-cubes"></i>
     </div>
-    
+
     <h1>Minecraft <span>Manager</span></h1>
-    <p class="subtitle">Starte unseren PaperMC-Server einfach per Klick. Er fährt nach 5 Minuten Inaktivität automatisch herunter.</p>
+    <p class="subtitle">Starte unseren PaperMC-Server einfach per Klick. Er fährt nach 5 Minuten Inaktivität automatisch
+      herunter.</p>
 
     <!-- Status Display -->
     <div id="statusContainer" class="status-panel offline">
@@ -555,7 +603,7 @@
     <div class="ip-box">
       <div class="ip-left">
         <div class="ip-label">Server-Adresse</div>
-        <div class="ip-address" id="serverIp">mc.thegridcom.org</div>
+        <div class="ip-address" id="serverIp">minecraft.thegridcom.org</div>
       </div>
       <button class="btn-copy" onclick="copyIp()">
         <i class="fa-regular fa-copy" id="copyIcon"></i>
@@ -728,4 +776,5 @@
     setInterval(checkStatus, 10000);
   </script>
 </body>
+
 </html>

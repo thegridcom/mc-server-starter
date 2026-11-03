@@ -97,7 +97,14 @@ app.post('/api/start', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`[MC-Starter] Webdienst läuft auf Port ${PORT}`);
+process.on('uncaughtException', (err) => {
+  console.error('[MC-Starter] Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('[MC-Starter] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[MC-Starter] Webdienst läuft auf Port ${PORT} (0.0.0.0)`);
 });
 

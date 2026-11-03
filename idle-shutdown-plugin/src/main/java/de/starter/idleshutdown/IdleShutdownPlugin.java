@@ -1,51 +1,102 @@
 package de.starter.idleshutdown;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
-public final class IdleShutdownPlugin extends JavaPlugin {
+public final class IdleShutdownPlugin extends JavaPlugin implements Listener {
 
-    private long idleTicks;
-    private int idleMinutes;
-    private BukkitTask shutdownTask = null;
+    private int idleMinutes = 5;
+    private BukkitTask countdownTask = null;
+    private int secondsRemaining = 0;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        this.idleMinutes = getConfig().getInt("idle-minutes", 5);
-        this.idleTicks = 20L * 60L * this.idleMinutes;
+        this.idleMinutes = Math.max(1, getConfig().getInt("idle-minutes", 5));
 
-        // Überprüfung alle 20 Sekunden (400 Ticks), erster Check nach 5 Sekunden (100 Ticks)
-        getServer().getScheduler().runTaskTimer(this, this::evaluatePlayerCount, 100L, 400L);
-        getLogger().info("IdleShutdown Modul aktiv: " + this.idleMinutes + "-Minuten-Limit.");
+        // Event-Listener registrieren
+        getServer().getPluginManager().registerEvents(this, this);
+
+        getLogger().info("=========================================");
+        getLogger().info("IdleShutdown Modul aktiv!");
+        getLogger().info("Server stoppt nach " + this.idleMinutes + " Minuten bei 0 Spielern.");
+        getLogger().info("=========================================");
+
+        // Beim Serverstart nach 10 Sekunden prüfen, ob Spieler da sind
+        getServer().getScheduler().runTaskLater(this, this::checkAndStartTimer, 200L);
     }
 
-    private void evaluatePlayerCount() {
-        int onlinePlayers = Bukkit.getOnlinePlayers().size();
-
-        if (onlinePlayers == 0) {
-            if (shutdownTask == null) {
-                getLogger().info("0 Spieler online. Starte " + this.idleMinutes + "-Minuten-Timer bis zum Shutdown...");
-                shutdownTask = Bukkit.getScheduler().runTaskLater(this, () -> {
-                    getLogger().info("Server war " + this.idleMinutes + " Minuten leer. Fahre sicher herunter...");
-                    Bukkit.shutdown();
-                }, this.idleTicks);
-            }
-        } else {
-            if (shutdownTask != null) {
-                getLogger().info("Spieler beigetreten. Shutdown-Timer abgebrochen.");
-                shutdownTask.cancel();
-                shutdownTask = null;
-            }
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        if (countdownTask != null) {
+            getLogger().info("Spieler '" + event.getPlayer().getName() + "' ist beigetreten. Auto-Shutdown abgebrochen!");
+            cancelCountdown();
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        // getServer().getScheduler().runTaskLater nutzen, da der Spieler zum Zeitpunkt des Events noch in getOnlinePlayers() ist
+        getServer().getScheduler().runTaskLater(this, () -> {
+            if (Bukkit.getOnlinePlayers().isEmpty()) {
+                checkAndStartTimer();
+            }
+        }, 20L); // 1 Sekunde Verzögerung
+    }
+
+    private synchronized void checkAndStartTimer() {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
+            cancelCountdown();
+            return;
+        }
+
+        if (countdownTask == null) {
+            this.secondsRemaining = this.idleMinutes * 60;
+            getLogger().info("Keine Spieler online. Starte Countdown (" + this.idleMinutes + " Min.) bis zum '/stop'...");
+
+            // Jede Sekunde herunterzählen (20 Ticks)
+            countdownTask = getServer().getScheduler().runTaskTimer(this, () -> {
+                if (!Bukkit.getOnlinePlayers().isEmpty()) {
+                    getLogger().info("Spieler beigetreten. Auto-Shutdown abgebrochen!");
+                    cancelCountdown();
+                    return;
+                }
+
+                secondsRemaining--;
+
+                // Logge jede volle Minute
+                if (secondsRemaining > 0 && secondsRemaining % 60 == 0) {
+                    int minLeft = secondsRemaining / 60;
+                    getLogger().info("Server ist leer: Automatischer Shutdown in " + minLeft + " Minute(n)...");
+                }
+
+                // Countdown abgelaufen: /stop Befehl ausführen
+                if (secondsRemaining <= 0) {
+                    getLogger().info("Server war " + idleMinutes + " Minuten ohne Spieler. Führe Befehl 'stop' aus...");
+                    cancelCountdown();
+                    // Befehl 'stop' über die Konsole ausführen
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "stop");
+                }
+            }, 20L, 20L);
+        }
+    }
+
+    private synchronized void cancelCountdown() {
+        if (countdownTask != null) {
+            countdownTask.cancel();
+            countdownTask = null;
+        }
+        secondsRemaining = 0;
     }
 
     @Override
     public void onDisable() {
-        if (shutdownTask != null) {
-            shutdownTask.cancel();
-            shutdownTask = null;
-        }
+        cancelCountdown();
+        getLogger().info("IdleShutdown Modul deaktiviert.");
     }
 }
