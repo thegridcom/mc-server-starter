@@ -26,7 +26,7 @@ app.get('/api/status', async (req, res) => {
     const response = await fetch(`${PELICAN_URL}/api/client/servers/${SERVER_ID}/resources`, {
       headers: {
         'Authorization': `Bearer ${API_KEY}`,
-        'Accept': 'application/vnd.pelican.v1+json'
+        'Accept': 'application/json'
       },
       signal: controller.signal
     });
@@ -75,7 +75,7 @@ app.post('/api/start', async (req, res) => {
       headers: {
         'Authorization': `Bearer ${API_KEY}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/vnd.pelican.v1+json'
+        'Accept': 'application/json'
       },
       body: JSON.stringify({ signal: 'start' }),
       signal: controller.signal
@@ -110,6 +110,56 @@ app.post('/api/start', async (req, res) => {
       ? 'Timeout: Das Panel antwortet nicht rechtzeitig.'
       : 'Verbindungsfehler zum Panel.';
     return res.status(504).json({ success: false, message: msg });
+  }
+});
+
+// Stop-Befehl ausführen (Pelican Panel Stop - verhindert automatischen Neustart)
+app.post('/api/shutdown', async (req, res) => {
+  const secret = req.headers['x-shutdown-secret'] || req.body?.secret;
+  const expectedSecret = process.env.SHUTDOWN_SECRET || 'gridmc_secret_shutdown_token';
+
+  if (secret && secret !== expectedSecret) {
+    return res.status(403).json({ success: false, message: 'Ungültiges Shutdown-Secret.' });
+  }
+
+  console.log('[MC-Starter] Auto-Shutdown Signal erhalten. Sende "stop" an Pelican Panel...');
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch(`${PELICAN_URL}/api/client/servers/${SERVER_ID}/power`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ signal: 'stop' }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (response.status === 204) {
+      console.log('[MC-Starter] Server erfolgreich über Pelican gestoppt (kein Neustart)!');
+      return res.json({
+        success: true,
+        message: 'Server-Stoppsignal erfolgreich an Pelican gesendet.'
+      });
+    }
+
+    const errBody = await response.text();
+    console.error(`[Pelican Stop Fehler] Status ${response.status}: ${errBody}`);
+    return res.status(502).json({
+      success: false,
+      message: 'Pelican Panel hat den Stop-Befehl nicht akzeptiert.'
+    });
+  } catch (err) {
+    clearTimeout(timeout);
+    return res.status(504).json({
+      success: false,
+      message: 'Verbindungsfehler beim Senden des Stop-Befehls an Pelican.'
+    });
   }
 });
 

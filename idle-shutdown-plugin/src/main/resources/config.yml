@@ -2,3 +2,8 @@
 # Zeit in Minuten ohne Spieler bis zum sicheren Server-Shutdown
 idle-minutes: 5
 
+# URL zum Node.js Webserver, der den Pelican-Panel Stop ausführt (verhindert den Container-Neustart)
+starter-url: "http://130.61.151.106:9009"
+
+# Geheimes Token zur Autorisierung des Shutdown-Befehls
+shutdown-secret: "gridmc_secret_shutdown_token"
