@@ -33,7 +33,16 @@ app.get('/api/status', async (req, res) => {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return res.json({ state: 'unknown' });
+      const errText = await response.text();
+      let errorDetail = errText;
+      try {
+        const parsed = JSON.parse(errText);
+        errorDetail = parsed.errors?.[0]?.detail || parsed.errors?.[0]?.code || errText;
+      } catch {
+        errorDetail = errText.slice(0, 150);
+      }
+      console.error(`[Pelican Status Fehler] Status ${response.status}: ${errorDetail}`);
+      return res.json({ state: 'unknown', error: errorDetail });
     }
 
     const data = await response.json();
@@ -82,10 +91,17 @@ app.post('/api/start', async (req, res) => {
     }
 
     const errBody = await response.text();
-    console.error(`[Pelican Fehler] Status ${response.status}:`, errBody);
+    let errorDetail = errBody;
+    try {
+      const parsed = JSON.parse(errBody);
+      errorDetail = parsed.errors?.[0]?.detail || parsed.errors?.[0]?.code || parsed.message || errBody;
+    } catch {
+      errorDetail = errBody.slice(0, 300);
+    }
+    console.error(`[Pelican Fehler] Status ${response.status}: ${errorDetail}`);
     return res.status(502).json({
       success: false,
-      message: 'Pelican Panel hat den Startbefehl nicht akzeptiert.'
+      message: `Pelican Panel Fehler (${response.status}): ${errorDetail}`
     });
 
   } catch (err) {
