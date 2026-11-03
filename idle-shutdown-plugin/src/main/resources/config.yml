@@ -1,0 +1,4 @@
+# the grid. community - Idle Shutdown Plugin
+# Zeit in Minuten ohne Spieler bis zum sicheren Server-Shutdown
+idle-minutes: 5
+

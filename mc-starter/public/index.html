@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>the grid. | Mini-Projekt - Minecraft Server Manager</title>
+  <meta name="description" content="Starte den Minecraft PaperMC Server von the grid. community per Knopfdruck.">
+  <meta name="theme-color" content="#f97316">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://thegridcom.org/assets/TheGridLogo-1000x1000.png">
+  <link rel="apple-touch-icon" href="https://thegridcom.org/assets/TheGridLogo-1000x1000.png">
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* =========================================
+       the grid. - Design Tokens & Variables
+       ========================================= */
+    :root {
+      --bg-color: #0f172a;
+      --surface-color: rgba(30, 41, 59, 0.7);
+      --accent-color: #f97316;
+      --accent-hover: #ea580c;
+      --glass-bg: rgba(255, 255, 255, 0.04);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --discord-color: #5865F2;
+      --discord-hover: #4752C4;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --glow-accent: 0 10px 25px rgba(249, 115, 22, 0.35);
+      --glow-green: 0 10px 25px rgba(34, 197, 94, 0.35);
+      --glow-red: 0 10px 25px rgba(239, 68, 68, 0.35);
+      --transition-smooth: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(249, 115, 22, 0.12), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(56, 189, 248, 0.09), transparent 45%),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem;
+    }
+
+    /* =========================================
+       Navbar Header
+       ========================================= */
+    header {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 9999px;
+      margin-bottom: 2rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .brand-title span {
+      color: var(--accent-color);
+    }
+
+    .pill-project {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.65rem;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.35);
+      color: #fb923c;
+      border-radius: 9999px;
+    }
+
+    .header-links a {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: var(--transition-smooth);
+    }
+
+    .header-links a:hover {
+      color: var(--accent-color);
+    }
+
+    /* =========================================
+       Main Card Container
+       ========================================= */
+    .card {
+      width: 100%;
+      max-width: 580px;
+      background: rgba(30, 41, 59, 0.65);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 40px rgba(249, 115, 22, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    }
+
+    .icon-header {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1.25rem;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.25);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: var(--accent-color);
+      box-shadow: var(--glow-accent);
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
+    }
+
+    h1 span {
+      color: var(--accent-color);
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    /* =========================================
+       Status Box
+       ========================================= */
+    .status-panel {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .status-left {
+      text-align: left;
+    }
+
+    .status-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .status-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Pulsing Status Dot */
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+    }
+
+    .pulse-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      animation: pulseAnimation 2s infinite ease-out;
+      opacity: 0.6;
+    }
+
+    @keyframes pulseAnimation {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    /* Status Colors */
+    .running .pulse-dot { background: #22c55e; }
+    .running .pulse-dot::after { background: #22c55e; }
+    .running .badge-text { color: #86efac; }
+
+    .starting .pulse-dot { background: #eab308; }
+    .starting .pulse-dot::after { background: #eab308; }
+    .starting .badge-text { color: #fde047; }
+
+    .stopping .pulse-dot { background: #f97316; }
+    .stopping .pulse-dot::after { background: #f97316; }
+    .stopping .badge-text { color: #fdba74; }
+
+    .offline .pulse-dot { background: #ef4444; }
+    .offline .pulse-dot::after { background: #ef4444; }
+    .offline .badge-text { color: #fca5a5; }
+
+    .badge-pill {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      border: 1px solid transparent;
+    }
+
+    .running .badge-pill {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .starting .badge-pill {
+      background: rgba(234, 179, 8, 0.15);
+      border-color: rgba(234, 179, 8, 0.3);
+      color: #fde047;
+    }
+
+    .stopping .badge-pill {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.3);
+      color: #fdba74;
+    }
+
+    .offline .badge-pill {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    /* =========================================
+       Action Button
+       ========================================= */
+    .btn-action {
+      width: 100%;
+      padding: 1.1rem 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+      box-shadow: var(--glow-accent);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(249, 115, 22, 0.5);
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-action:disabled {
+      background: #334155;
+      color: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-action.btn-running {
+      background: rgba(34, 197, 94, 0.2);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+      box-shadow: none;
+    }
+
+    /* Message / Notification Banner */
+    #msg {
+      margin-top: 1.25rem;
+      font-size: 0.9rem;
+      min-height: 1.5rem;
+      color: var(--text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    #msg.success {
+      color: #86efac;
+    }
+
+    #msg.error {
+      color: #fca5a5;
+    }
+
+    /* =========================================
+       IP & Info Box
+       ========================================= */
+    .ip-box {
+      margin-top: 1.75rem;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .ip-left {
+      text-align: left;
+    }
+
+    .ip-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .ip-address {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 700;
+      color: #38bdf8;
+      font-size: 0.95rem;
+    }
+
+    .btn-copy {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-copy:hover {
+      background: rgba(249, 115, 22, 0.2);
+      border-color: rgba(249, 115, 22, 0.4);
+      color: #fb923c;
+    }
+
+    /* Feature tags grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .feature-item {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+    }
+
+    .feature-item i {
+      color: var(--accent-color);
+      font-size: 0.95rem;
+    }
+
+    /* =========================================
+       Footer
+       ========================================= */
+    footer {
+      width: 100%;
+      max-width: 580px;
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition-smooth);
+    }
+
+    footer a:hover {
+      color: #fb923c;
+      text-decoration: underline;
+    }
+
+    .discord-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--discord-color);
+      color: #ffffff !important;
+      padding: 0.5rem 1.1rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none !important;
+      transition: var(--transition-smooth);
+    }
+
+    .discord-btn:hover {
+      background: var(--discord-hover);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 1.75rem 1.25rem; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <header>
+    <a href="https://thegridcom.org" class="brand" target="_blank" rel="noopener">
+      <img src="https://thegridcom.org/assets/TheGridLogo-1000x1000.png" alt="the grid. logo">
+      <div class="brand-title">the grid<span>.</span></div>
+    </a>
+    <span class="pill-project">Mini-Projekt</span>
+    <div class="header-links">
+      <a href="https://thegridcom.org" target="_blank" rel="noopener">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> thegridcom.org
+      </a>
+    </div>
+  </header>
+
+  <!-- Central Action Card -->
+  <main class="card">
+    <div class="icon-header">
+      <i class="fa-solid fa-cubes"></i>
+    </div>
+    
+    <h1>Minecraft <span>Manager</span></h1>
+    <p class="subtitle">Starte unseren PaperMC-Server einfach per Klick. Er fährt nach 5 Minuten Inaktivität automatisch herunter.</p>
+
+    <!-- Status Display -->
+    <div id="statusContainer" class="status-panel offline">
+      <div class="status-left">
+        <div class="status-label">Server Status</div>
+        <div class="status-value">
+          <span class="pulse-dot"></span>
+          <span id="statusText" class="badge-text">Prüfe Status...</span>
+        </div>
+      </div>
+      <div id="badgePill" class="badge-pill">OFFLINE</div>
+    </div>
+
+    <!-- Power Action Button -->
+    <button id="startBtn" class="btn-action" onclick="handleStart()">
+      <i id="btnIcon" class="fa-solid fa-power-off"></i>
+      <span id="btnText">Server starten</span>
+    </button>
+
+    <!-- Message / Response Notice -->
+    <div id="msg"></div>
+
+    <!-- Server Address Box -->
+    <div class="ip-box">
+      <div class="ip-left">
+        <div class="ip-label">Server-Adresse</div>
+        <div class="ip-address" id="serverIp">mc.thegridcom.org</div>
+      </div>
+      <button class="btn-copy" onclick="copyIp()">
+        <i class="fa-regular fa-copy" id="copyIcon"></i>
+        <span id="copyText">Kopieren</span>
+      </button>
+    </div>
+
+    <!-- Features -->
+    <div class="features-grid">
+      <div class="feature-item">
+        <i class="fa-solid fa-hourglass-half"></i>
+        <span>5 Min. Auto-Shutdown</span>
+      </div>
+      <div class="feature-item">
+        <i class="fa-solid fa-shield-cat"></i>
+        <span>Spam- & Rate-Limit Schutz</span>
+      </div>
+      <div class="feature-item">
+        <i class="fa-solid fa-bolt"></i>
+        <span>PaperMC 1.21 Native</span>
+      </div>
+      <div class="feature-item">
+        <i class="fa-solid fa-cloud"></i>
+        <span>Pelican Panel API Cloud</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <a href="https://thegridcom.org" class="discord-btn" target="_blank" rel="noopener">
+      <i class="fa-brands fa-discord"></i> the grid. Discord beitreten
+    </a>
+    <div>
+      Teil der <a href="https://thegridcom.org" target="_blank" rel="noopener">the grid. community</a> · Mini-Projekt
+    </div>
+  </footer>
+
+  <script>
+    const btn = document.getElementById('startBtn');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnText = document.getElementById('btnText');
+    const statusContainer = document.getElementById('statusContainer');
+    const statusText = document.getElementById('statusText');
+    const badgePill = document.getElementById('badgePill');
+    const msg = document.getElementById('msg');
+
+    let cooldownTimer = null;
+
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const state = (data.state || 'offline').toLowerCase();
+        updateUIState(state);
+      } catch (err) {
+        updateUIState('offline');
+      }
+    }
+
+    function updateUIState(state) {
+      statusContainer.className = `status-panel ${state}`;
+
+      if (state === 'running') {
+        badgePill.innerText = 'ONLINE';
+        statusText.innerText = 'Server läuft & spielbereit';
+        btn.disabled = true;
+        btn.className = 'btn-action btn-running';
+        btnIcon.className = 'fa-solid fa-circle-check';
+        btnText.innerText = 'Server läuft bereits';
+      } else if (state === 'starting') {
+        badgePill.innerText = 'STARTET';
+        statusText.innerText = 'Fährt gerade hoch...';
+        btn.disabled = true;
+        btn.className = 'btn-action';
+        btnIcon.className = 'fa-solid fa-spinner fa-spin';
+        btnText.innerText = 'Server fährt hoch...';
+      } else if (state === 'stopping') {
+        badgePill.innerText = 'STOPPT';
+        statusText.innerText = 'Server wird beendet...';
+        btn.disabled = true;
+        btn.className = 'btn-action';
+        btnIcon.className = 'fa-solid fa-hourglass-half fa-spin';
+        btnText.innerText = 'Fährt herunter...';
+      } else {
+        badgePill.innerText = 'STANDBY';
+        statusText.innerText = 'Server ist offline';
+        if (!cooldownTimer) {
+          btn.disabled = false;
+          btn.className = 'btn-action';
+          btnIcon.className = 'fa-solid fa-power-off';
+          btnText.innerText = 'Server starten';
+        }
+      }
+    }
+
+    async function handleStart() {
+      btn.disabled = true;
+      btnIcon.className = 'fa-solid fa-spinner fa-spin';
+      btnText.innerText = 'Sende Startbefehl...';
+      msg.className = '';
+      msg.innerText = '';
+
+      try {
+        const res = await fetch('/api/start', { method: 'POST' });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          msg.className = 'success';
+          msg.innerText = data.message || 'Startbefehl gesendet! Der Server fährt jetzt hoch.';
+          startCooldown(45);
+          setTimeout(checkStatus, 3000);
+        } else if (res.status === 429) {
+          msg.className = 'error';
+          msg.innerText = data.message;
+          const match = data.message.match(/(\d+)s/);
+          const remaining = match ? parseInt(match[1], 10) : 45;
+          startCooldown(remaining);
+        } else {
+          msg.className = 'error';
+          msg.innerText = data.message || 'Startbefehl konnte nicht ausgeführt werden.';
+          btn.disabled = false;
+          btnIcon.className = 'fa-solid fa-power-off';
+          btnText.innerText = 'Server starten';
+        }
+      } catch (err) {
+        msg.className = 'error';
+        msg.innerText = 'Verbindungsfehler zum Starter-Backend.';
+        btn.disabled = false;
+        btnIcon.className = 'fa-solid fa-power-off';
+        btnText.innerText = 'Server starten';
+      }
+    }
+
+    function startCooldown(seconds) {
+      if (cooldownTimer) clearInterval(cooldownTimer);
+      let remaining = seconds;
+      btn.disabled = true;
+      btnIcon.className = 'fa-solid fa-hourglass-half';
+      btnText.innerText = `Cooldown (${remaining}s)`;
+
+      cooldownTimer = setInterval(() => {
+        remaining--;
+        if (remaining <= 0) {
+          clearInterval(cooldownTimer);
+          cooldownTimer = null;
+          checkStatus();
+        } else {
+          btnText.innerText = `Cooldown (${remaining}s)`;
+        }
+      }, 1000);
+    }
+
+    function copyIp() {
+      const ip = document.getElementById('serverIp').innerText;
+      navigator.clipboard.writeText(ip).then(() => {
+        const copyText = document.getElementById('copyText');
+        const copyIcon = document.getElementById('copyIcon');
+        copyText.innerText = 'Kopiert!';
+        copyIcon.className = 'fa-solid fa-check';
+        setTimeout(() => {
+          copyText.innerText = 'Kopieren';
+          copyIcon.className = 'fa-regular fa-copy';
+        }, 2000);
+      });
+    }
+
+    // Initiale Statusprüfung und Intervall alle 10 Sekunden
+    checkStatus();
+    setInterval(checkStatus, 10000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+name: IdleShutdown
+version: '${project.version}'
+main: de.starter.idleshutdown.IdleShutdownPlugin
+api-version: '1.20'
+description: Automatischer Shutdown nach 5 Minuten Leerlauf
+author: gridmc
+
